@@ -1,0 +1,76 @@
+class Node:
+    def __init__(self, data=None):
+        self.data = data
+        self.next = None
+
+
+class LinkedList:
+    def __init__(self):
+        self.head = None
+
+    def append(self, data):
+        new_node = Node(data)
+        if self.head is None:
+            self.head = new_node
+            return
+        else:
+            cur = self.head
+            while cur.next is not None:
+                cur = cur.next
+            cur.next = new_node
+            return
+
+    def length(self):
+        cur = self.head
+        size = 0
+        while cur.next is not None:
+            size += 1
+            cur = cur.next
+        size += 1
+        return size
+
+    def display(self):
+        elements = []
+        cur_node = self.head
+        while cur_node.next is not None:
+            elements.append(cur_node.data)
+            cur_node = cur_node.next
+        elements.append(cur_node.data)
+        print(elements)
+
+    def delete(self, value):
+        cur_node = self.head
+        if cur_node.data == value:
+            self.head = cur_node.next
+            return
+        else:
+            while cur_node.next is not None:
+                if cur_node.next.data == value:
+                    cur_node.next = cur_node.next.next
+                    return
+                cur_node = cur_node.next
+
+
+
+my_list = LinkedList()
+my_list.append(3)
+my_list.append(5)
+my_list.display()
+my_list.delete(3)
+my_list.display()
+my_list.append(10)
+my_list.append(15)
+my_list.display()
+my_list.delete(10)
+my_list.display()
+my_list.append(20)
+my_list.display()
+my_list.delete(20)
+my_list.display()
+my_list.append(50)
+my_list.append(100)
+my_list.display()
+my_list.delete(15)
+my_list.display()
+print(my_list.length())
+
