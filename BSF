@@ -1,0 +1,100 @@
+import numpy as np 
+
+rows = 5
+columns = 7
+
+dungeon = np.zeros((5,7))
+
+#Adding where we start 
+dungeon[0][0] = -1
+#Adding where we exit
+dungeon[4][3] = -2
+#Adding the rocks
+dungeon[0][3] = -3
+dungeon[1][1] = -3
+dungeon[1][5] = -3
+dungeon[2][1] = -3
+dungeon[3][2] = -3
+dungeon[3][3] = -3
+dungeon[3][2] = -3
+dungeon[4][0] = -3
+dungeon[4][2] = -3
+dungeon[4][5] = -3
+
+#create a queue for the algorithm and initializing our start node 
+row_queue = []
+column_queue = []
+start_row_queue = 0
+start_column_queue = 0
+
+
+#variables that track the number of index 
+move_count = 0
+nodes_left_in_layer = 1 
+nodes_in_next_layer = 0
+
+#variable used to track the exit
+reached_end = False 
+
+#north, south, east, west 
+drows = [1,-1,0,0]
+dcolumns = [0,0,-1,1]
+
+visited = np.zeros((5,7))
+
+def explore_neighbours(row_aux,column_aux):
+    global nodes_in_next_layer
+    global row_queue
+    global column_queue 
+    global rows
+    global columns
+    
+    for i in range(4): 
+        rr = row_aux + drows[i]
+        rc = column_aux + dcolumns[i]
+        
+        #check if the limits are out of bonderies
+        if rr >= 0 and rc >= 0 and rr < rows and rc < columns:
+            #check if the node have already been visited and if the node is a rock
+            if visited[rr][rc] == 0 and dungeon[rr][rc] != -3:
+                row_queue.append(rr)
+                column_queue.append(rc)
+                visited[rr][rc] = 1
+                nodes_in_next_layer += 1
+
+#Solution
+def solve():  
+    global nodes_left_in_layer
+    global nodes_in_next_layer
+    global reached_end
+    global move_count
+    
+    row_queue.append(start_row_queue)
+    column_queue.append(start_column_queue)
+    visited[start_row_queue][start_column_queue] = 1
+
+    while len(row_queue) > 0: 
+        row_aux = row_queue.pop()
+        column_aux = column_queue.pop()
+        
+        if dungeon[row_aux][column_aux] == -2:
+            reached_end = True 
+            break
+        
+        #Add all the possible neighbours to the queue 
+        explore_neighbours(row_aux,column_aux) 
+        nodes_left_in_layer = nodes_left_in_layer - 1 
+        
+        if nodes_left_in_layer == 0: 
+            nodes_left_in_layer = nodes_in_next_layer
+            nodes_in_next_layer = 0
+            move_count = move_count + 1
+        
+    if reached_end: 
+        return move_count
+    return -1
+    
+        
+aux = solve()
+print(aux)
+
