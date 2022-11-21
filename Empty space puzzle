@@ -1,0 +1,91 @@
+puzzle = [[0,1,2],[3,4,5],[6,7,8]]
+puzzle_solve = [[0,1,2],[3,4,5],[6,7,8]]
+drows = [1,-1,0,0]
+dcolumns = [0,0,-1,1]
+rows = 3
+columns = 3
+
+
+class Node:
+    def __init__(self, puzzle, move, empty_row, empty_column):
+        self.puzzle = puzzle
+        self.move = move
+        self.empty_row = empty_row
+        self.empty_column = empty_column
+        self.children = []
+        self.parent = None
+
+
+
+    def add_child(self, child):
+        # We're going to test to avoid loops
+        if self.parent != None:
+            if self.parent.move == 'Up' and self.move != 'Down':
+                if self.parent.move == 'Down' and self.move != 'Up':
+                    if self.parent.move == 'Left' and self.move != 'Right':
+                        if self.parent.move == 'Right' and self.move != 'Left':
+                            if self.move == 'ROOT':
+                                child.parent = self
+                                self.children.append(child)
+
+
+def explore_neighbours(row_empty_space, column_empty_space, puzzle, actual_node):
+    global rows
+    global columns
+    global drows
+    global dcolumns
+    temp = 0
+    result = 0
+
+    for i in range(4):
+        puzzle_aux = puzzle.copy()
+        rr = row_empty_space + drows[i]
+        rc = column_empty_space + dcolumns[i]
+
+
+        # check if the limits are out of bonderies
+        if rr >= 0 and rc >= 0 and rr < rows and rc < columns:
+            print(rr)
+            print(rc)
+            temp = puzzle_aux[rc][rr]
+            puzzle_aux[rc][rr] = puzzle_aux[rc-rc][rr-rr]
+            puzzle_aux[rc-rc][rr - rr] = temp
+           
+        
+            if drows[i] == 1:
+                move_aux = 'Up'
+            elif drows[i] == -1:
+                move_aux = 'Down'
+            elif dcolumns[i] == 1:
+                move_aux = 'Left'
+            else:
+                move_aux = 'Right'
+
+            if puzzle_aux == puzzle:
+                new_node = Node(puzzle_aux, move_aux, rr, rc)
+                actual_node.add_child(new_node)
+                result = -1
+            else:
+                new_node = Node(puzzle_aux, move_aux, rr,rc)
+                actual_node.add_child(new_node)
+                result = 0
+
+    return result
+
+
+
+def build_tree():
+    tree_root = Node(puzzle, 'ROOT', 0, 0)
+    return tree_root
+
+root = build_tree()
+root_aux = root
+
+result = 0
+i = 0
+while result != -1:
+    result = explore_neighbours(root_aux.empty_row, root_aux.empty_column, root_aux.puzzle, root_aux)
+    i += 1
+print(i)
+
+
