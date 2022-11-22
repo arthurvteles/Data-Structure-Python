@@ -6,6 +6,7 @@ drows = [1,-1,0,0]
 dcolumns = [0,0,-1,1]
 rows = 3
 columns = 3
+visite_queue = []
 
 
 class Node:
@@ -37,7 +38,8 @@ def explore_neighbours(row_empty_space, column_empty_space, puzzle, actual_node)
     global columns
     global drows
     global dcolumns
-    temp = 0
+    global visite_queue
+    global puzzle_solve
     result = 0
 
     for i in range(4):
@@ -64,32 +66,35 @@ def explore_neighbours(row_empty_space, column_empty_space, puzzle, actual_node)
             else:
                 move_aux = 'Right'
 
-            if puzzle_aux == puzzle:
+            if puzzle_aux == puzzle_solve:
                 new_node = Node(puzzle_aux, move_aux, rr, rc)
                 actual_node.add_child(new_node)
                 result = -1
             else:
                 new_node = Node(puzzle_aux, move_aux, rr,rc)
                 actual_node.add_child(new_node)
-                result = 0
+                visite_queue.append(new_node)
 
     actual_node.visited = True
+    del visite_queue[0]
     return result
 
 
 
 def build_tree():
     tree_root = Node(puzzle, 'ROOT', 0, 0)
+    visite_queue.append(tree_root)
     return tree_root
 
-root = build_tree()
-root_aux = root
+build_tree()
 
 result = 0
 i = 0
 while result != -1:
-    result = explore_neighbours(root_aux.empty_row, root_aux.empty_column, root_aux.puzzle, root_aux)
+    node_aux = visite_queue[0]
+    result = explore_neighbours(node_aux.empty_row, node_aux.empty_column, node_aux.puzzle, node_aux)
     i += 1
-print(i)
+
+
 
 
