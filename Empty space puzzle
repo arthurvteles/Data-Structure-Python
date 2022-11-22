@@ -1,3 +1,5 @@
+import copy
+
 puzzle = [[0,1,2],[3,4,5],[6,7,8]]
 puzzle_solve = [[0,1,2],[3,4,5],[6,7,8]]
 drows = [1,-1,0,0]
@@ -14,6 +16,7 @@ class Node:
         self.empty_column = empty_column
         self.children = []
         self.parent = None
+        self.visited = False
 
 
 
@@ -38,20 +41,20 @@ def explore_neighbours(row_empty_space, column_empty_space, puzzle, actual_node)
     result = 0
 
     for i in range(4):
-        puzzle_aux = puzzle.copy()
+        puzzle_aux = copy.deepcopy(puzzle)
         rr = row_empty_space + drows[i]
         rc = column_empty_space + dcolumns[i]
 
 
         # check if the limits are out of bonderies
-        if rr >= 0 and rc >= 0 and rr < rows and rc < columns:
+        if 0 <= rr < rows and rc >= 0 and rc < columns:
             print(rr)
             print(rc)
             temp = puzzle_aux[rc][rr]
             puzzle_aux[rc][rr] = puzzle_aux[rc-rc][rr-rr]
             puzzle_aux[rc-rc][rr - rr] = temp
-           
-        
+            print(puzzle_aux)
+
             if drows[i] == 1:
                 move_aux = 'Up'
             elif drows[i] == -1:
@@ -70,6 +73,7 @@ def explore_neighbours(row_empty_space, column_empty_space, puzzle, actual_node)
                 actual_node.add_child(new_node)
                 result = 0
 
+    actual_node.visited = True
     return result
 
 
