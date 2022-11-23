@@ -1,6 +1,6 @@
 import copy
 
-puzzle = [[4, 1, 2], [3, 0, 5], [6, 7, 8]]
+puzzle = [[1, 2, 3], [4, 0, 5], [6, 7, 8]]
 puzzle_solve = [[0,1,2],[3,4,5],[6,7,8]]
 drows = [1,-1,0,0]
 dcolumns = [0,0,-1,1]
@@ -22,11 +22,7 @@ class Node:
 
     def add_children(self, child):
         # We're going to test to avoid loops
-            if self.parent.move == 'Up' and self.move != 'Down' or self.move == 'ROOT':
-                if self.parent.move == 'Down' and self.move != 'Up' or self.move == 'ROOT':
-                    if self.parent.move == 'Left' and self.move != 'Right' or self.move == 'ROOT':
-                        if self.parent.move == 'Right' and self.move != 'Left' or self.move == 'ROOT':
-                            self.children.append(child)
+        self.children.append(child)
 
     def add_parent(self, parent):
         self.parent = parent
@@ -35,11 +31,10 @@ def build_tree():
     global queue
     global puzzle
 
-    tree_root = Node(puzzle,'ROOT', 2, 2)
+    tree_root = Node(puzzle,'ROOT', 1, 2)
     queue.append(tree_root)
     return tree_root
 
-aux = build_tree()
 
 
 def explore_neighbour(actual_node):
@@ -73,13 +68,13 @@ def explore_neighbour(actual_node):
                 move_aux = 'Right'
 
             if puzzle_aux == puzzle_solve:
-                new_node = Node(puzzle_aux, move_aux, rr, rc)
+                new_node = Node(puzzle_aux, move_aux, rr + 1, rc + 1)
                 new_node.add_parent(actual_node)
                 actual_node.add_children(new_node)
                 path.append(new_node)
                 result = -1
             else:
-                new_node = Node(puzzle_aux, move_aux, rr, rc)
+                new_node = Node(puzzle_aux, move_aux, rr + 1, rc + 1)
                 new_node.add_parent(actual_node)
                 actual_node.add_children(new_node)
                 queue.append(new_node)
@@ -87,10 +82,15 @@ def explore_neighbour(actual_node):
     del queue[0]
     return result
 
-
+build_tree()
 result = 0
 i = 0
 while result != -1:
     node_aux = queue[0]
     result = explore_neighbour(node_aux)
     i += 1
+
+node_path = path[0]
+while node_path.move != 'ROOT':
+    print(node_path.puzzle)
+    node_path = node_path.parent
