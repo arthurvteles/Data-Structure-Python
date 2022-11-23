@@ -1,12 +1,13 @@
 import copy
 
-puzzle = [[0,1,2],[3,4,5],[6,7,8]]
+puzzle = [[4, 1, 2], [3, 0, 5], [6, 7, 8]]
 puzzle_solve = [[0,1,2],[3,4,5],[6,7,8]]
 drows = [1,-1,0,0]
 dcolumns = [0,0,-1,1]
+queue = []
+path = []
 rows = 3
 columns = 3
-visite_queue = []
 
 
 class Node:
@@ -19,43 +20,48 @@ class Node:
         self.parent = None
         self.visited = False
 
-
-
-    def add_child(self, child):
+    def add_children(self, child):
         # We're going to test to avoid loops
-        if self.parent != None:
-            if self.parent.move == 'Up' and self.move != 'Down':
-                if self.parent.move == 'Down' and self.move != 'Up':
-                    if self.parent.move == 'Left' and self.move != 'Right':
-                        if self.parent.move == 'Right' and self.move != 'Left':
-                            if self.move == 'ROOT':
-                                child.parent = self
-                                self.children.append(child)
+            if self.parent.move == 'Up' and self.move != 'Down' or self.move == 'ROOT':
+                if self.parent.move == 'Down' and self.move != 'Up' or self.move == 'ROOT':
+                    if self.parent.move == 'Left' and self.move != 'Right' or self.move == 'ROOT':
+                        if self.parent.move == 'Right' and self.move != 'Left' or self.move == 'ROOT':
+                            self.children.append(child)
+
+    def add_parent(self, parent):
+        self.parent = parent
+
+def build_tree():
+    global queue
+    global puzzle
+
+    tree_root = Node(puzzle,'ROOT', 2, 2)
+    queue.append(tree_root)
+    return tree_root
+
+aux = build_tree()
 
 
-def explore_neighbours(row_empty_space, column_empty_space, puzzle, actual_node):
-    global rows
-    global columns
+def explore_neighbour(actual_node):
+    global puzzle_solve
     global drows
     global dcolumns
-    global visite_queue
-    global puzzle_solve
+    global rows
+    global columns
+    global queue
+    global path
+
     result = 0
 
     for i in range(4):
-        puzzle_aux = copy.deepcopy(puzzle)
-        rr = row_empty_space + drows[i]
-        rc = column_empty_space + dcolumns[i]
+        puzzle_aux = copy.deepcopy(actual_node.puzzle)
+        rr = actual_node.empty_row + drows[i] - 1
+        rc = actual_node.empty_column + dcolumns[i] - 1
 
-
-        # check if the limits are out of bonderies
-        if 0 <= rr < rows and rc >= 0 and rc < columns:
-            print(rr)
-            print(rc)
-            temp = puzzle_aux[rc][rr]
-            puzzle_aux[rc][rr] = puzzle_aux[rc-rc][rr-rr]
-            puzzle_aux[rc-rc][rr - rr] = temp
-            print(puzzle_aux)
+        if rr >= 0 and rr < rows and rc >= 0 and rc < columns:
+            temp = copy.deepcopy(puzzle_aux[rr][rc])
+            puzzle_aux[rr][rc] = 0
+            puzzle_aux[actual_node.empty_row - 1][actual_node.empty_column - 1] = temp
 
             if drows[i] == 1:
                 move_aux = 'Up'
@@ -68,33 +74,23 @@ def explore_neighbours(row_empty_space, column_empty_space, puzzle, actual_node)
 
             if puzzle_aux == puzzle_solve:
                 new_node = Node(puzzle_aux, move_aux, rr, rc)
-                actual_node.add_child(new_node)
+                new_node.add_parent(actual_node)
+                actual_node.add_children(new_node)
+                path.append(new_node)
                 result = -1
             else:
-                new_node = Node(puzzle_aux, move_aux, rr,rc)
-                actual_node.add_child(new_node)
-                visite_queue.append(new_node)
+                new_node = Node(puzzle_aux, move_aux, rr, rc)
+                new_node.add_parent(actual_node)
+                actual_node.add_children(new_node)
+                queue.append(new_node)
 
-    actual_node.visited = True
-    del visite_queue[0]
+    del queue[0]
     return result
 
-
-
-def build_tree():
-    tree_root = Node(puzzle, 'ROOT', 0, 0)
-    visite_queue.append(tree_root)
-    return tree_root
-
-build_tree()
 
 result = 0
 i = 0
 while result != -1:
-    node_aux = visite_queue[0]
-    result = explore_neighbours(node_aux.empty_row, node_aux.empty_column, node_aux.puzzle, node_aux)
+    node_aux = queue[0]
+    result = explore_neighbour(node_aux)
     i += 1
-
-
-
-
